@@ -1,0 +1,29 @@
+
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: blog-autoscaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: blog
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: blog-frontend
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: model
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80

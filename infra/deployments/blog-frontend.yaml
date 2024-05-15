@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: blog-frontend
+
+spec:
+
+  selector:
+    matchLabels:
+      app: blog-frontend
+
+  template:
+    metadata:
+      labels:
+        app: blog-frontend
+
+    spec:
+      containers:
+      - name: blog-frontend
+        image: blog-frontend
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "2000m"
+          limits:
+            memory: "2048Mi"
+            cpu: "4000m"

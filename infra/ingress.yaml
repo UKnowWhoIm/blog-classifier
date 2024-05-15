@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-blog
+  annotations:
+    kubernetes.io/ingress.class: alb
+spec:
+  rules:
+  - host: caraviso.test
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: blog-frontend
+            port:
+              number: 5000
+  ingressClassName: nginx
