@@ -4,11 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - dev
-      - stage
-  pull_request:
-    branches:
-      - dev
+      - main
 
 jobs:
 
@@ -46,7 +42,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Build docker image
-      run: docker build server -t blog
+      run: docker build server -t ${ECR_IMAGE}
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -62,7 +58,7 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_TAG: latest
       run: |
-        docker tag blog:latest ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
+        docker tag ${ECR_IMAGE}:latest ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
         docker push ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
 
   model-build:
@@ -76,7 +72,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Build docker image
-      run: docker build model -t model
+      run: docker build model -t ${ECR_IMAGE}
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -92,5 +88,5 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_TAG: latest
       run: |
-        docker tag blog:latest ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
+        docker tag ${ECR_IMAGE}:latest ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
         docker push ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
