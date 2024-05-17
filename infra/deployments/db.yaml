@@ -2,33 +2,40 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: blog-db
+  name: postgres-db
 
 spec:
 
   selector:
     matchLabels:
-      app: blog-db
+      app: postgres-db
 
   template:
     metadata:
       labels:
-        app: blog-db
+        app: postgres-db
 
     spec:
+      volumes:
+      - name: postgres-pv-storage
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
       containers:
-      - name: blog-db
+      - name: postgres-db
         image: postgres:alpine
         env:
         - name: POSTGRES_PASSWORD
           valueFrom:
             secretKeyRef:
               name: db-secrets
-              key: password 
+              key: POSTGRES_PASSWORD 
         - name: POSTGRES_USER
           valueFrom:
             secretKeyRef:
               name: db-secrets
-              key: username
+              key: POSTGRES_USERNAME
         ports:
         - containerPort: 5432
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-pv-storage

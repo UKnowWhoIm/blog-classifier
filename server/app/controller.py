@@ -1,9 +1,9 @@
 from typing import List
 
-from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from .datamodels import CreatePostDto, GetPostDto
+from .datamodels import CreatePostDto, GetPostDto, ModelResponseFromDB
 from .service import get_category, get_posts, create_post, get_post_by_id, update_category, get_all_model_responses
 from .db import get_db
 router = APIRouter()
@@ -17,8 +17,8 @@ def hello():
   }
 
 @router.post('/post')
-def create_post_api(data: CreatePostDto, bg_tasks: BackgroundTasks, database: Session = Depends(get_db)) -> GetPostDto:
-  return create_post(data, database, bg_tasks)
+def create_post_api(data: CreatePostDto, database: Session = Depends(get_db)) -> GetPostDto:
+  return create_post(data, database)
   
 @router.get('/posts')
 def get_posts_api(database: Session = Depends(get_db)) -> List[GetPostDto]:
@@ -32,7 +32,7 @@ def get_one_post_api(post_id: str, database: Session = Depends(get_db)) -> GetPo
   return post
 
 @router.post('/posts/{post_id}/generate-category')
-def generate_category_api(post_id: str, database: Session = Depends(get_db)):
+def generate_category_api(post_id: str, database: Session = Depends(get_db)) -> ModelResponseFromDB:
   post = get_post_by_id(post_id, database)
   if post is None:
     raise HTTPException(status_code=404)

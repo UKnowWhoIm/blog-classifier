@@ -26,17 +26,17 @@ spec:
         - name: MODEL_HOST
           value: http://model:11434
         - name: DB_HOST
-          value: blog-db
+          value: postgres-db
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               name: db-secrets
-              key: password 
+              key: POSTGRES_PASSWORD 
         - name: DB_USERNAME
           valueFrom:
             secretKeyRef:
               name: db-secrets
-              key: username
+              key: POSTGRES_USERNAME
         ports:
         - containerPort: 8000
         resources:

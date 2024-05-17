@@ -4,7 +4,7 @@ from requests import post, Response
 from sqlalchemy.orm import Session
 from .datamodels import GetPostDto, CreatePostDto, ModelResponseBase
 from .errors import Errors
-import models
+from . import models
 
 WORD_LIMIT = 200
 
@@ -22,11 +22,11 @@ def process_model_response(res: Response):
     category = findall(r'Category: ([a-zA-Z]+)', result.response)
 
     if len(category) > 0:
-      return { 'success': True, 'category': category, **result.model_dump() }
+      return [True, { 'category': category[0], **result.model_dump() }]
 
-    return {'success': False, 'error': Errors.BAD_MODEL_RESPONSE_TEXT, **result.model_dump() }
+    return [False, {'error': Errors.BAD_MODEL_RESPONSE_TEXT, **result.model_dump() }]
 
-  return { 'success': False, 'error': error_type }
+  return [False, {'error': error_type }]
 
 def _send_model_req(text: str, system: str | None = None):
   url = f'{os.environ['MODEL_HOST']}/api/generate'
@@ -75,17 +75,18 @@ def get_category(postData: GetPostDto, conn: Session):
   Strictly follow the response format, do not give explanation or justification for your answer
   '''
   res = _send_model_req(prompt, system_prompt)
-  result: dict = process_model_response(prompt, res)
+  [is_success, result] = process_model_response(res)
   model_response = {
+    **result,
     'prompt': prompt,
     'system_prompt': system_prompt,
     'post_id': postData.id,
-    **result,
+    'model': os.environ['MODEL_NAME']
   }
-  if not result['success']:
-    model_response['json_response'] = res.text
+  if not is_success:
+    model_response['response'] = res.text
   db_obj = models.ModelResponse(**model_response)
   conn.add(db_obj)
-  conn.commit(db_obj)
+  conn.commit()
   conn.refresh(db_obj)
   return db_obj

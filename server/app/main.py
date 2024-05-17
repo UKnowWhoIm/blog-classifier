@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Depends, BackgroundTasks
+from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from .controller import router
-from .service import create_all_tables, get_db
+from .db import get_db
 from .models import Base
 
 app = FastAPI()
