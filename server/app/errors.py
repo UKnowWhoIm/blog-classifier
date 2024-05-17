@@ -5,4 +5,3 @@ class Errors(Enum):
   BAD_MODEL_REQUEST = 2
   BAD_MODEL_RESPONSE_TEXT = 3
   CATEGORY_NOT_FOUND = 4
-  

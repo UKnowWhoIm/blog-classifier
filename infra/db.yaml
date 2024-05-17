@@ -2,26 +2,26 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: postgres-db
+  name: blog-db
 
 spec:
 
   selector:
     matchLabels:
-      app: postgres-db
+      app: blog-db
 
   template:
     metadata:
       labels:
-        app: postgres-db
+        app: blog-db
 
     spec:
       volumes:
       - name: postgres-pv-storage
         persistentVolumeClaim:
-          claimName: postgres-pv-claim
+          claimName: blog-db
       containers:
-      - name: postgres-db
+      - name: blog-db
         image: postgres:alpine
         env:
         - name: POSTGRES_PASSWORD
@@ -39,3 +39,42 @@ spec:
         volumeMounts:
         - mountPath: /var/lib/postgresql/data
           name: postgres-pv-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: blog-db
+  labels:
+    app: blog-db
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+  selector:
+    app: blog-db
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: blog-db
+spec:
+  storageClassName: blog-db-storage
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: blog-db
+spec:
+  storageClassName: blog-db-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

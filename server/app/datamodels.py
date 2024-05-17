@@ -10,7 +10,7 @@ class GetPostDto(CreatePostDto):
   category: str | None
 
   class Config:
-    orm_mode = True
+    from_attributes = True
 
 class ModelResponseBase(BaseModel):
   response: str | None
@@ -18,7 +18,7 @@ class ModelResponseBase(BaseModel):
   total_duration: int
 
   class Config:
-    orm_mode = True
+    from_attributes = True
 
 class ModelResponseFromDB(ModelResponseBase):
   id: UUID
@@ -26,4 +26,4 @@ class ModelResponseFromDB(ModelResponseBase):
   category: str | None
 
   class Config:
-    orm_mode = True
+    from_attributes = True

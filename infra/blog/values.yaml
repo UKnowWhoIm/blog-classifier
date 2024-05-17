@@ -1,0 +1,49 @@
+replicaCount: 1
+
+image:
+  repository: blog
+  pullPolicy: Never
+  tag: "latest"
+  
+imagePullSecrets: []
+
+
+service:
+  type: ClusterIP
+  port: 8000
+
+env:
+  modelName: stablelm2
+  modelHost: http://model:11434
+  dbHost: blog-db
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  hosts:
+    - host: caraviso.test
+      paths:
+        - path: /
+          pathType: Prefix
+
+resources: 
+  limits:
+    memory: "256Mi"
+    cpu: "1000m"
+  limits:
+    memory: "1024Mi"
+    cpu: "2000m"
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+labels:
+  app: blog
+
+selectorLabels:
+  app: blog
