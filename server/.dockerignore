@@ -1,3 +1,5 @@
 .venv
-model
-!model/output
+Dockerfile
+.dockerignore
+.gitignore
+.env.example
