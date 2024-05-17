@@ -1,0 +1,94 @@
+name: "Deploy dev server"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - dev
+      - stage
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+
+  find-changes:
+    name: "Find changes"
+    if: ${{ !contains(github.event.head_commit.message, 'skip-ci-cd') }}
+    runs-on: ubuntu-latest
+    outputs:
+      model_changes: ${{ steps.model-changes.outputs.MODEL_CHANGES }}
+      blog-changes: ${{ steps.blog-changes.outputs.BLOG_CHANGES }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: model-changes
+      run: |
+        if [ -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^model/')" ]; then
+          echo "MODEL_CHANGES=1" >> $GITHUB_OUTPUT
+        fi
+    - name: blog-changes
+      run: |
+        if [ -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^blog/')" ]; then
+          echo "BLOG_CHANGES=1" >> $GITHUB_OUTPUT
+        fi
+
+  blog-build:
+    env:
+      ECR_IMAGE: blog
+    name: "Build Blog & Deploy"
+    needs: ["find-changes"]
+    if: ${{ needs.find-changes.outputs.blog-changes || github.event_name == 'workflow_dispatch' }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Build docker image
+      run: docker build server -t blog
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Tag & Push Image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_TAG: latest
+      run: |
+        docker tag blog:latest ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
+        docker push ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
+
+  model-build:
+    env:
+      ECR_IMAGE: model
+    name: "Build Model & Deploy"
+    needs: ["find-changes"]
+    if: ${{ needs.find-changes.outputs.blog-changes || github.event_name == 'workflow_dispatch' }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Build docker image
+      run: docker build model -t model
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Tag & Push Image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_TAG: latest
+      run: |
+        docker tag blog:latest ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
+        docker push ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
