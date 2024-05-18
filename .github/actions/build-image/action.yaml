@@ -17,6 +17,7 @@ runs:
   using: "composite"
   steps:
     - name: Build docker image
+      shell: bash
       run: docker build {inputs.LOCAL_DIR} -t ${inputs.ECR_IMAGE}
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -29,6 +30,7 @@ runs:
       uses: aws-actions/amazon-ecr-login@v1
 
     - name: Tag & Push Image
+      shell: bash
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_TAG: latest

@@ -20,8 +20,10 @@ runs:
     ARGOCD_PASSWORD: ${{ inputs.ARGOCD_PASSWORD }}
   steps:
     - name: argocd-login
+      shell: bash
       run: argocd login "${ARGOCD_SERVER}" --insecure --username "${ARGOCD_USERNAME}" --password "${ARGOCD_PASSWORD}"
     - name: restart-app
+      shell: bash
       run: |
         argocd app actions run "$ARGOCD_APP_NAME" restart --kind Deployment |& tee response.txt
         cat response.txt
