@@ -11,8 +11,8 @@ inputs:
   ARGOCD_PASSWORD:
     required: true
 runs:
-  using: "composite"
-  image: argoproj/argocd
+  using: "docker"
+  image: docker://argoproj/argocd
   steps:
     - name: argocd-login
       shell: bash
