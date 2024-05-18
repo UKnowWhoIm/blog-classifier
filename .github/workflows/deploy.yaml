@@ -23,20 +23,15 @@ jobs:
     - name: model-changes
       run: |
         if [ ! -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^model/')" ]; then
+          echo 'Model changed'
           echo "MODEL_CHANGES=1" >> $GITHUB_OUTPUT
         fi
     - name: blog-changes
       run: |
         if [ ! -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^server/')" ]; then
+          echo 'Blog changed'
           echo "BLOG_CHANGES=1" >> $GITHUB_OUTPUT
         fi
-    - name: debug-blog-changes
-      run: echo $(git diff --name-only -r HEAD^1 HEAD | grep '^server/')
-    - name: debug-model-changes
-      run: echo $(git diff --name-only -r HEAD^1 HEAD | grep '^model/')
-    - name: debug diff
-      run: echo $(git diff --name-only -r HEAD^1 HEAD)
-
 
   blog-build:
     env:
@@ -44,7 +39,7 @@ jobs:
     name: "Build Blog & Deploy"
     runs-on: ubuntu-latest
     needs: ["find-changes"]
-    if: ${{ needs.find-changes.outputs.blog-changes || github.event_name == 'workflow_dispatch' }}
+    if: ${{ needs.find-changes.outputs.blog-changes == '1' || github.event_name == 'workflow_dispatch' }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -74,7 +69,7 @@ jobs:
     name: "Build Model & Deploy"
     runs-on: ubuntu-latest
     needs: ["find-changes"]
-    if: ${{ needs.find-changes.outputs.blog-changes || github.event_name == 'workflow_dispatch' }}
+    if: ${{ needs.find-changes.outputs.blog-changes == '1' || github.event_name == 'workflow_dispatch' }}
     steps:
     - name: Checkout
       uses: actions/checkout@v3
