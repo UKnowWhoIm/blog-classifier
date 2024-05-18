@@ -20,17 +20,17 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
-    - name: model-changes
+    - id: model-changes
       run: |
         if [ ! -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^model/')" ]; then
           echo 'Model changed'
-          echo "MODEL_CHANGES=1" >> $GITHUB_OUTPUT
+          echo "MODEL_CHANGES=1" >> "$GITHUB_OUTPUT"
         fi
-    - name: blog-changes
+    - id: blog-changes
       run: |
         if [ ! -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^server/')" ]; then
           echo 'Blog changed'
-          echo "BLOG_CHANGES=1" >> $GITHUB_OUTPUT
+          echo "BLOG_CHANGES=1" >> "$GITHUB_OUTPUT"
         fi
 
   blog-build:
