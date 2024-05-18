@@ -13,15 +13,10 @@ inputs:
 runs:
   using: "composite"
   image: argoproj/argocd
-  variables:
-    GIT_STRATEGY: none
-    ARGOCD_SERVER: ${{ inputs.ARGOCD_SERVER }}
-    ARGOCD_USERNAME: ${{ inputs.ARGOCD_USERNAME }}
-    ARGOCD_PASSWORD: ${{ inputs.ARGOCD_PASSWORD }}
   steps:
     - name: argocd-login
       shell: bash
-      run: argocd login "${ARGOCD_SERVER}" --insecure --username "${ARGOCD_USERNAME}" --password "${ARGOCD_PASSWORD}"
+      run: argocd login "${{ inputs.ARGOCD_SERVER }}" --insecure --username "${{ inputs.ARGOCD_USERNAME }}" --password "${{ inputs.ARGOCD_PASSWORD }}"
     - name: restart-app
       shell: bash
       run: |
