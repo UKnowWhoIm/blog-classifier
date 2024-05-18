@@ -31,9 +31,9 @@ jobs:
           echo "BLOG_CHANGES=1" >> $GITHUB_OUTPUT
         fi
     - name: debug-blog-changes
-      run: git diff --name-only -r HEAD^1 HEAD | grep '^blog/'
+      run: echo $(git diff --name-only -r HEAD^1 HEAD | grep '^blog/')
     - name: debug-model-changes
-      run: git diff --name-only -r HEAD^1 HEAD | grep '^model/'
+      run: echo $(git diff --name-only -r HEAD^1 HEAD | grep '^model/')
 
   blog-build:
     env:
