@@ -21,10 +21,10 @@ runs:
       run: curl https://github.com/argoproj/argo-cd/releases/download/${{ inputs.ARGOCD_CLI_VERSION }}/argocd-linux-amd64  >> argocd && chmod +x ./argocd
     - name: argocd-login
       shell: bash
-      run: argocd login "${{ inputs.ARGOCD_SERVER }}" --insecure --username "${{ inputs.ARGOCD_USERNAME }}" --password "${{ inputs.ARGOCD_PASSWORD }}"
+      run: ./argocd login "${{ inputs.ARGOCD_SERVER }}" --insecure --username "${{ inputs.ARGOCD_USERNAME }}" --password "${{ inputs.ARGOCD_PASSWORD }}"
     - name: restart-app
       shell: bash
       run: |
-        argocd app actions run "${{ inputs.ARGO_CD_APP_NAME }}" restart --kind Deployment |& tee response.txt
+        ./argocd app actions run "${{ inputs.ARGO_CD_APP_NAME }}" restart --kind Deployment |& tee response.txt
         cat response.txt
         if [ -s response.txt ]; then exit 1; fi
