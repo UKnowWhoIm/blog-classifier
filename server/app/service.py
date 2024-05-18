@@ -74,17 +74,25 @@ def get_category(postData: GetPostDto, conn: Session):
   Response: "Category: Entertainment"
   Strictly follow the response format, do not give explanation or justification for your answer
   '''
-  res = _send_model_req(prompt, system_prompt)
-  [is_success, result] = process_model_response(res)
   model_response = {
-    **result,
     'prompt': prompt,
     'system_prompt': system_prompt,
     'post_id': postData.id,
     'model': os.environ['MODEL_NAME']
   }
-  if not is_success:
-    model_response['response'] = res.text
+  try:
+    res = _send_model_req(prompt, system_prompt)
+    [is_success, result] = process_model_response(res)
+    model_response = {
+      **result,
+      **model_response,
+    }
+    if not is_success:
+      model_response['response'] = res.text
+  except ConnectionError as exc:
+    model_response['error'] = Errors.MODEL_SERVER_ERROR
+    model_response['response'] = str(exc)
+
   db_obj = models.ModelResponse(**model_response)
   conn.add(db_obj)
   conn.commit()
