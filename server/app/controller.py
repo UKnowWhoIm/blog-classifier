@@ -42,5 +42,5 @@ def generate_category_api(post_id: str, database: Session = Depends(get_db)) -> 
   return resp
 
 @router.get('/model-responses')
-def get_all_model_responses_api(database: Session = Depends(get_db)):
+def get_all_model_responses_api(database: Session = Depends(get_db)) -> List[ModelResponseFromDB]:
   return get_all_model_responses(database)

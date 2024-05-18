@@ -15,14 +15,14 @@ class GetPostDto(CreatePostDto):
 class ModelResponseBase(BaseModel):
   response: str | None
   model: str
-  total_duration: int
+  total_duration: int | None
 
   class Config:
     from_attributes = True
 
 class ModelResponseFromDB(ModelResponseBase):
   id: UUID
-  error: str | None
+  error: int | None
   category: str | None
 
   class Config:
