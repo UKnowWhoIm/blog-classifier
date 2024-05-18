@@ -2,6 +2,9 @@ name: 'Deploy'
 description: 'Deploy to kube'
 
 inputs:
+  ARGOCD_CLI_VERSION:
+    default: v2.11.0
+    required: false
   ARGO_CD_APP_NAME: 
     required: true
   ARGOCD_SERVER:
@@ -11,9 +14,11 @@ inputs:
   ARGOCD_PASSWORD:
     required: true
 runs:
-  using: "docker"
-  image: docker://argoproj/argocd
+  using: "composite"
   steps:
+    - name: Download argo CLI
+      shell: bash
+      run: curl https://github.com/argoproj/argo-cd/releases/download/${{ inputs.ARGOCD_CLI_VERSION }}/argocd-linux-amd64  >> argocd && chmod +x ./argocd
     - name: argocd-login
       shell: bash
       run: argocd login "${{ inputs.ARGOCD_SERVER }}" --insecure --username "${{ inputs.ARGOCD_USERNAME }}" --password "${{ inputs.ARGOCD_PASSWORD }}"
