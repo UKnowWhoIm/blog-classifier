@@ -36,65 +36,49 @@ jobs:
         fi
 
   blog-build:
-    env:
-      ECR_IMAGE: blog
     name: "Build Blog & Deploy"
     runs-on: ubuntu-latest
     needs: ["find-changes"]
     if: ${{ needs.find-changes.outputs.blog-changes == '1' || github.event_name == 'workflow_dispatch' }}
     steps:
-    - name: debg-output
-      run: |
-        echo '${{ needs.find-changes.outputs.blog-changes }}'
-        echo '${{ needs.find-changes.outputs.model-changes }}'
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Build docker image
-      run: docker build server -t ${ECR_IMAGE}
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Tag & Push Image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_TAG: latest
-      run: |
-        docker tag ${ECR_IMAGE}:latest ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
-        docker push ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build & Push
+        uses: ./.github/actions/build-image
+        with:
+          LOCAL_DIR: server
+          ECR_IMAGE: blog
+          ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+      - name: Deploy
+        uses: ./.github/actions/deploy
+        with:
+          ARGO_CD_APP_NAME: blog
+          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+          ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
+          ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
 
   model-build:
-    env:
-      ECR_IMAGE: model
     name: "Build Model & Deploy"
     runs-on: ubuntu-latest
     needs: ["find-changes"]
     if: ${{ needs.find-changes.outputs.model-changes == '1' || github.event_name == 'workflow_dispatch' }}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Build docker image
-      run: docker build model -t ${ECR_IMAGE}
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Tag & Push Image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_TAG: latest
-      run: |
-        docker tag ${ECR_IMAGE}:latest ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
-        docker push ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build & Push
+        uses: ./.github/actions/build-image
+        with:
+          LOCAL_DIR: model
+          ECR_IMAGE: model
+          ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+      - name: Deploy
+        uses: ./.github/actions/deploy
+        with:
+          ARGO_CD_APP_NAME: model
+          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+          ARGOCD_USERNAME: ${{ secrets.ARGOCD_USERNAME }}
+          ARGOCD_PASSWORD: ${{ secrets.ARGOCD_PASSWORD }}
