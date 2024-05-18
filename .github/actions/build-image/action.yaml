@@ -16,22 +16,22 @@ inputs:
 runs:
   using: "composite"
   steps:
-  - name: Build docker image
-    run: docker build {inputs.LOCAL_DIR} -t ${inputs.ECR_IMAGE}
-  - name: Configure AWS credentials
-    uses: aws-actions/configure-aws-credentials@v1
-    with:
-      aws-access-key-id: ${{ inputs.AWS_ACCESS_KEY_ID }}
-      aws-secret-access-key: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
-      aws-region: ${{ inputs.AWS_REGION }}
-  - name: Login to Amazon ECR
-    id: login-ecr
-    uses: aws-actions/amazon-ecr-login@v1
+    - name: Build docker image
+      run: docker build {inputs.LOCAL_DIR} -t ${inputs.ECR_IMAGE}
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ inputs.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ inputs.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ inputs.AWS_REGION }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
 
-  - name: Tag & Push Image
-    env:
-      ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      ECR_TAG: latest
-    run: |
-      docker tag ${inputs.ECR_IMAGE}:latest ${ECR_REGISTRY}/${inputs.ECR_IMAGE}:${ECR_TAG}
-      docker push ${ECR_REGISTRY}/${inputs.ECR_IMAGE}:${ECR_TAG}
+    - name: Tag & Push Image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_TAG: latest
+      run: |
+        docker tag ${inputs.ECR_IMAGE}:latest ${ECR_REGISTRY}/${inputs.ECR_IMAGE}:${ECR_TAG}
+        docker push ${ECR_REGISTRY}/${inputs.ECR_IMAGE}:${ECR_TAG}
