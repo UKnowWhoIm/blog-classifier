@@ -27,13 +27,16 @@ jobs:
         fi
     - name: blog-changes
       run: |
-        if [ ! -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^blog/')" ]; then
+        if [ ! -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^server/')" ]; then
           echo "BLOG_CHANGES=1" >> $GITHUB_OUTPUT
         fi
     - name: debug-blog-changes
-      run: echo $(git diff --name-only -r HEAD^1 HEAD | grep '^blog/')
+      run: echo $(git diff --name-only -r HEAD^1 HEAD | grep '^server/')
     - name: debug-model-changes
       run: echo $(git diff --name-only -r HEAD^1 HEAD | grep '^model/')
+    - name: debug diff
+      run: echo $(git diff --name-only -r HEAD^1 HEAD)
+
 
   blog-build:
     env:
