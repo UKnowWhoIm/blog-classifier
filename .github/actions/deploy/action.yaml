@@ -18,7 +18,7 @@ runs:
   steps:
     - name: Download argo CLI
       shell: bash
-      run: curl https://github.com/argoproj/argo-cd/releases/download/${{ inputs.ARGOCD_CLI_VERSION }}/argocd-linux-amd64  >> argocd && chmod +x ./argocd
+      run: curl -L https://github.com/argoproj/argo-cd/releases/download/${{ inputs.ARGOCD_CLI_VERSION }}/argocd-linux-amd64 -o argocd && chmod +x ./argocd
     - name: argocd-login
       shell: bash
       run: ./argocd login "${{ inputs.ARGOCD_SERVER }}" --insecure --username "${{ inputs.ARGOCD_USERNAME }}" --password "${{ inputs.ARGOCD_PASSWORD }}"
