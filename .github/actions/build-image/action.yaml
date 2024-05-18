@@ -14,11 +14,15 @@ inputs:
     required: true
 
 runs:
+  env:
+    ECR_IMAGE: ${{ inputs.ECR_IMAGE }}
   using: "composite"
   steps:
     - name: Build docker image
       shell: bash
-      run: docker build '{inputs.LOCAL_DIR}' -t '${inputs.ECR_IMAGE}'
+      env:
+        LOCAL_DIR: ${{ inputs.LOCAL_DIR }}
+      run: docker build ${LOCAL_DIR} -t ${ECR_IMAGE}
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -35,5 +39,5 @@ runs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_TAG: latest
       run: |
-        docker tag '${inputs.ECR_IMAGE}:latest' '${ECR_REGISTRY}/${inputs.ECR_IMAGE}:${ECR_TAG}'
-        docker push '${ECR_REGISTRY}/${inputs.ECR_IMAGE}:${ECR_TAG}'
+        docker tag ${ECR_IMAGE}:latest ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}
+        docker push ${ECR_REGISTRY}/${ECR_IMAGE}:${ECR_TAG}

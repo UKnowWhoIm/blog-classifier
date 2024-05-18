@@ -13,7 +13,7 @@ router = APIRouter()
 def hello():
   return {
     'name': 'Just Another Blog API',
-    'version': '1.0.4'
+    'version': '1.0.5'
   }
 
 @router.post('/post')

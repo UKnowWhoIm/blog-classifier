@@ -25,6 +25,6 @@ runs:
     - name: restart-app
       shell: bash
       run: |
-        argocd app actions run "$ARGOCD_APP_NAME" restart --kind Deployment |& tee response.txt
+        argocd app actions run "${{ inputs.ARGO_CD_APP_NAME }}" restart --kind Deployment |& tee response.txt
         cat response.txt
         if [ -s response.txt ]; then exit 1; fi
