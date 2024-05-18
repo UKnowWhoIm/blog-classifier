@@ -22,12 +22,12 @@ jobs:
         fetch-depth: 0
     - name: model-changes
       run: |
-        if [ -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^model/')" ]; then
+        if [ ! -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^model/')" ]; then
           echo "MODEL_CHANGES=1" >> $GITHUB_OUTPUT
         fi
     - name: blog-changes
       run: |
-        if [ -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^blog/')" ]; then
+        if [ ! -z "$(git diff --name-only -r HEAD^1 HEAD | grep '^blog/')" ]; then
           echo "BLOG_CHANGES=1" >> $GITHUB_OUTPUT
         fi
 

@@ -2,7 +2,6 @@ from sqlalchemy import String, Text, UUID, SMALLINT, BIGINT, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
-from .errors import Errors
 
 class Post(Base):
   __tablename__ = 'posts'
@@ -19,7 +18,7 @@ class ModelResponse(Base):
   __tablename__ = 'model_responses'
 
   id: Mapped[str] = mapped_column(UUID, primary_key=True, server_default='uuid_generate_v4()')
-  error: Mapped[Errors] = mapped_column(SMALLINT, nullable=True)
+  error: Mapped[int] = mapped_column(SMALLINT, nullable=True)
   model: Mapped[str] = mapped_column(String(30), nullable=True)
   category: Mapped[str]= mapped_column(String(30), nullable=True)
   prompt: Mapped[str] = mapped_column(Text, nullable=False)

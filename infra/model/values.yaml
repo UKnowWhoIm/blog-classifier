@@ -2,8 +2,10 @@ replicaCount: 3
 
 image:
   repository: model
-  pullPolicy: Never
+  pullPolicy: None
   tag: "latest"
+
+imagePullSecrets: []
 
 service:
   type: ClusterIP
@@ -11,15 +13,12 @@ service:
 
 resources:
   limits:
-    memory: "512Mi"
-    cpu: "500m"
-  limits:
     memory: "1024Mi"
     cpu: "1000m"
 
 autoscaling:
   enabled: true
-  minReplicas: 3
+  minReplicas: 2
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80
