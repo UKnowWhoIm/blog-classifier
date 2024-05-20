@@ -61,4 +61,4 @@ kubectl cp ./server/ddl.sql <POD_NAME>:.
 kubectl exec <POD_NAME> -- psql -U user -f ddl.sql
 ```
 
-### Visit <HostName>/docs to get the swagger UI of the blog server
+### Visit `<HostName>/docs` to get the swagger UI of the blog server
