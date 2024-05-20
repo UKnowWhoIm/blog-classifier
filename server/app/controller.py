@@ -1,10 +1,17 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from .datamodels import CreatePostDto, GetPostDto, ModelResponseFromDB
-from .service import get_category, get_posts, create_post, get_post_by_id, update_category, get_all_model_responses
+from .datamodels import CreatePostDto, GetPostDto, ModelResponseFromDB, GenerateCategoryBody
+from .service import (
+  get_category,
+  get_posts,
+  create_post,
+  get_post_by_id,
+  update_category,
+  get_all_model_responses,
+)
 from .db import get_db
 router = APIRouter()
 
@@ -32,15 +39,15 @@ def get_one_post_api(post_id: str, database: Session = Depends(get_db)) -> GetPo
   return post
 
 @router.post('/posts/{post_id}/generate-category')
-def generate_category_api(post_id: str, database: Session = Depends(get_db)) -> ModelResponseFromDB:
+def generate_category_api(post_id: str, data: GenerateCategoryBody, database: Session = Depends(get_db)) -> ModelResponseFromDB:
   post = get_post_by_id(post_id, database)
   if post is None:
-    raise HTTPException(status_code=404)
-  resp = get_category(post, database)
+    raise HTTPException(status_code=400)
+  resp = get_category(post, data.iteration, database)
   if not resp.error:
     update_category(post, resp.category, database)
   return resp
 
 @router.get('/model-responses')
-def get_all_model_responses_api(database: Session = Depends(get_db)) -> List[ModelResponseFromDB]:
-  return get_all_model_responses(database)
+def get_all_model_responses_api(iteration: Optional[int] = None, database: Session = Depends(get_db)) -> List[ModelResponseFromDB]:
+  return get_all_model_responses(database, iteration)

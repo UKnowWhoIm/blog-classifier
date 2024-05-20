@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, Field
 from uuid import UUID
 
@@ -11,6 +12,9 @@ class GetPostDto(CreatePostDto):
 
   class Config:
     from_attributes = True
+  
+class GenerateCategoryBody(BaseModel):
+  iteration: Optional[int] = None
 
 class ModelResponseBase(BaseModel):
   response: str | None
@@ -22,8 +26,11 @@ class ModelResponseBase(BaseModel):
 
 class ModelResponseFromDB(ModelResponseBase):
   id: UUID
+  iteration: Optional[int]
   error: int | None
   category: str | None
+  
+  post: GetPostDto
 
   class Config:
     from_attributes = True

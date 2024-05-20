@@ -8,7 +8,7 @@ from . import models
 
 WORD_LIMIT = 200
 
-def process_model_response(res: Response):
+def _process_model_response(res: Response):
   error_type: Errors | None = None
 
   if res.status_code >= 500 or 300 <= res.status_code < 400:
@@ -39,10 +39,7 @@ def _send_model_req(text: str, system: str | None = None):
     data['system'] = system
   return post(url, json=data)
 
-def word_count(text: str):
-  return len(text.split(' '))
-
-def shorten(text: str):
+def _shorten(text: str):
   return " ".join(text.split()[:WORD_LIMIT])
 
 def create_post(postData: CreatePostDto, conn: Session):
@@ -58,17 +55,19 @@ def get_posts(conn: Session):
 def get_post_by_id(id: str, conn: Session):
   return conn.query(models.Post).get(id)
 
-def get_all_model_responses(conn: Session):
+def get_all_model_responses(conn: Session, iteration: int | None = None):
+  if iteration is not None:
+    return conn.query(models.ModelResponse).filter(models.ModelResponse.iteration == iteration)
   return conn.query(models.ModelResponse).all()
 
 def update_category(post: models.Post, category: str, conn: Session):
   post.category = category
   conn.commit()
 
-def get_category(postData: GetPostDto, conn: Session):
-  prompt = f'blog excerpt: \n{shorten(f'{postData.headline}\n{postData.body}')}'
+def get_category(postData: GetPostDto, iteration: int, conn: Session):
+  prompt = f'blog excerpt: \n{_shorten(f'{postData.headline}\n{postData.body}')}'
   system_prompt = '''You will be provided with a blog excerpt. You must categorize that excerpt into one of the given categories.
-  The categories are "Economics", "Entertainment", "Food", "Health", "Travel", "Technology", "Politics".
+  The categories are "Crime", "Economics", "Entertainment", "Food", "Health", "Travel", "Technology", "Politics", "Sports".
   You must only reply with the categories. Here is an example of a prompt and appropriate response:
   Prompt: "First Look at Liam Hemsworth as Geralt in The Witcher Season 4"
   Response: "Category: Entertainment"
@@ -76,13 +75,14 @@ def get_category(postData: GetPostDto, conn: Session):
   '''
   model_response = {
     'prompt': prompt,
+    'iteration': iteration,
     'system_prompt': system_prompt,
     'post_id': postData.id,
     'model': os.environ['MODEL_NAME']
   }
   try:
     res = _send_model_req(prompt, system_prompt)
-    [is_success, result] = process_model_response(res)
+    [is_success, result] = _process_model_response(res)
     model_response = {
       **result,
       **model_response,

@@ -1,4 +1,4 @@
-from sqlalchemy import String, Text, UUID, SMALLINT, BIGINT, ForeignKey
+from sqlalchemy import String, Text, UUID, SMALLINT, BIGINT, ForeignKey, INT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -25,6 +25,7 @@ class ModelResponse(Base):
   system_prompt: Mapped[str] = mapped_column(Text, nullable=False)
   response: Mapped[str] = mapped_column(Text, nullable=False)
   total_duration: Mapped[BIGINT] = mapped_column(BIGINT, nullable=True)
+  iteration: Mapped[int] = mapped_column(INT, nullable=True)
   post_id: Mapped[str] = mapped_column(ForeignKey('posts.id'))
-  
+
   post: Mapped[Post] = relationship("Post", back_populates="model_responses")
